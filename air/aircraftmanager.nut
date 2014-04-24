@@ -1,18 +1,18 @@
 /*
- * This file is part of AdmiralAI.
+ * This file is part of EvoAI.
  *
- * AdmiralAI is free software: you can redistribute it and/or modify
+ * EvoAI is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 2 of the License, or
  * (at your option) any later version.
  *
- * AdmiralAI is distributed in the hope that it will be useful,
+ * EvoAI is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with AdmiralAI.  If not, see <http://www.gnu.org/licenses/>.
+ * along with EvoAI.  If not, see <http://www.gnu.org/licenses/>.
  *
  * Copyright 2008-2010 Thijs Marinussen
  */
@@ -205,12 +205,12 @@ function AircraftManager::MinimumPassengerAcceptance(airport_type)
 {
 	// if (!AIGameSettings.GetValue("station.modified_catchment")) return 40;
 	switch (airport_type) {
-		case AIAirport.AT_SMALL:         return 40;
-		case AIAirport.AT_LARGE:         return 80;
-		case AIAirport.AT_METROPOLITAN:  return 80;
-		case AIAirport.AT_INTERNATIONAL: return 100;
-		case AIAirport.AT_COMMUTER:      return 40;
-		case AIAirport.AT_INTERCON:      return 100;
+		case AIAirport.AT_SMALL:         return Parameters.A_MIN_PASS_SMALL;
+		case AIAirport.AT_LARGE:         return Parameters.A_MIN_PASS_LARGE;
+		case AIAirport.AT_METROPOLITAN:  return Parameters.A_MIN_PASS_METROPOLITAN;
+		case AIAirport.AT_INTERNATIONAL: return Parameters.A_MIN_PASS_INTERNATIONAL;
+		case AIAirport.AT_COMMUTER:      return Parameters.A_MIN_PASS_COMMUTER;
+		case AIAirport.AT_INTERCON:      return Parameters.A_MIN_PASS_INTERCON;
 		default: throw("AircraftManager::MinimumPassengerAcceptance for unknown airport type");
 	}
 }
@@ -239,7 +239,7 @@ function AircraftManager::BuildNewRoute()
 		foreach (town_to, d in town_list2) {
 			/* Check the distance between the towns. */
 			local distance = AIMap.DistanceManhattan(AITown.GetLocation(town_from), AITown.GetLocation(town_to));
-			if (distance < 150 || distance > 300) continue;
+			if (distance < Parameters.A_TOWN_DISTANCE_MIN || distance > Parameters.A_TOWN_DISTANCE_MAX) continue;
 
 			/* Check if there is an airport in the second town that needs extra planes. */
 			local manager2 = ::main_instance._town_managers[town_to];
@@ -263,7 +263,7 @@ function AircraftManager::BuildNewRoute()
 		foreach (town_to, d in town_list2) {
 			/* Check the distance between the towns. */
 			local distance = AIMap.DistanceManhattan(AITown.GetLocation(town_from), AITown.GetLocation(town_to));
-			if (distance < 150 || distance > 300) continue;
+			if (distance < Parameters.A_TOWN_DISTANCE_MIN || distance > Parameters.A_TOWN_DISTANCE_MAX) continue;
 
 			/* Check if an airport can be build in the second town. */
 			local manager2 = ::main_instance._town_managers[town_to];
@@ -287,7 +287,7 @@ function AircraftManager::BuildNewRoute()
 		foreach (town_to, d in town_list2) {
 			/* Check the distance between the towns. */
 			local distance = AIMap.DistanceManhattan(AITown.GetLocation(town_from), AITown.GetLocation(town_to));
-			if (distance < 150 || distance > 300) continue;
+			if (distance < Parameters.A_TOWN_DISTANCE_MIN || distance > Parameters.A_TOWN_DISTANCE_MAX) continue;
 
 			/* Check if an airport can be build in the second town. */
 			local manager2 = ::main_instance._town_managers[town_to];

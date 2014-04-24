@@ -1,18 +1,18 @@
 /*
- * This file is part of AdmiralAI.
+ * This file is part of EvoAI.
  *
- * AdmiralAI is free software: you can redistribute it and/or modify
+ * EvoAI is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 2 of the License, or
  * (at your option) any later version.
  *
- * AdmiralAI is distributed in the hope that it will be useful,
+ * EvoAI is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with AdmiralAI.  If not, see <http://www.gnu.org/licenses/>.
+ * along with EvoAI.  If not, see <http://www.gnu.org/licenses/>.
  *
  * Copyright 2008-2010 Thijs Marinussen
  */
@@ -43,7 +43,7 @@ class TrainManager
 		this._ind_to_drop_stations = {};
 		this._routes = [];
 		this._platform_length = 4;
-		this._max_distance_new_route = 100;
+		this._max_distance_new_route = Parameters.T_MAX_DISTANCE_NEW_ROUTE;
 		this._InitializeUnbuildRoutes();
 	}
 
@@ -202,7 +202,7 @@ function TrainManager::Load(data)
 			if (this._unbuild_routes.rawin(route_array[5])) {
 				foreach (ind, dummy in this._unbuild_routes[route_array[5]]) {
 					if (ind == route_array[0]) {
-						AdmiralAI.TransportCargo(route_array[5], ind);
+						EvoAI.TransportCargo(route_array[5], ind);
 						break;
 					}
 				}
@@ -359,7 +359,7 @@ function TrainManager::BuildNewRoute()
 			local last_transportation = AIIndustry.GetLastMonthTransported(ind_from, cargo);
 			if (last_production == 0) continue;
 			/* Don't try to transport goods from industries that are serviced very well. */
-			if (AdmiralAI.GetMaxCargoPercentTransported(AITile.GetClosestTown(AIIndustry.GetLocation(ind_from))) < 100 * last_transportation / last_production) continue;
+			if (EvoAI.GetMaxCargoPercentTransported(AITile.GetClosestTown(AIIndustry.GetLocation(ind_from))) < 100 * last_transportation / last_production) continue;
 			/* Serviced industries with very low production are not interesting. */
 			if (last_production < 100 && last_transportation > 0) continue;
 			local free_production = last_production - last_transportation;
@@ -372,7 +372,7 @@ function TrainManager::BuildNewRoute()
 			if (AICompany.GetBankBalance(AICompany.COMPANY_SELF) < 180000) return false;
 			local ind_acc_list = AIIndustryList_CargoAccepting(cargo);
 			ind_acc_list.Valuate(AIIndustry.GetDistanceManhattanToTile, AIIndustry.GetLocation(ind_from));
-			ind_acc_list.KeepBetweenValue(50, min(this._max_distance_new_route, (AICompany.GetBankBalance(AICompany.COMPANY_SELF) - 60000) / 700));
+			ind_acc_list.KeepBetweenValue(Parameters.T_IND_ACC_MIN, min(this._max_distance_new_route, (AICompany.GetBankBalance(AICompany.COMPANY_SELF) - 60000) / 700));
 			ind_acc_list.Sort(AIList.SORT_BY_VALUE, AIList.SORT_ASCENDING);
 			foreach (ind_to, dummy in ind_acc_list) {
 				local station_from = this._GetStationNearIndustry(ind_from, true, cargo, ind_to);
@@ -386,7 +386,7 @@ function TrainManager::BuildNewRoute()
 					this._routes.push(line);
 					this._UsePickupStation(ind_from, station_from);
 					this._UseDropStation(ind_to, station_to);
-					AdmiralAI.TransportCargo(cargo, ind_from);
+					EvoAI.TransportCargo(cargo, ind_from);
 					return true;
 				} else if (ret == -1) {
 					/* remove source station. */

@@ -18,6 +18,7 @@
  */
 
 /** @file main.nut Implementation of EvoAI, containing the main loop. */
+require("parameters.nut");
 
 import("queue.fibonacci_heap", "FibonacciHeap", 2);
 
@@ -53,7 +54,7 @@ require("rail/trainmanager.nut");
 require("rail/railroutebuilder.nut");
 require("rail/trainline.nut");
 
-require("parameters.nut");
+
 
 /**
  * The main class of EvoAI.
@@ -510,11 +511,11 @@ function EvoAI::TransportCargo(cargo, ind)
 /* static */ function EvoAI::UseVehicleType(vehicle_type)
 {
 	switch (vehicle_type) {
-		case "planes": return !AIGameSettings.IsDisabledVehicleType(AIVehicle.VT_AIR) && AIController.GetSetting("use_planes") && AIGameSettings.GetValue("vehicle.max_aircraft") > 0;
-		case "trains": return !AIGameSettings.IsDisabledVehicleType(AIVehicle.VT_RAIL) && AIController.GetSetting("use_trains") && AIGameSettings.GetValue("vehicle.max_trains") > 0;
-		case "trucks": return !AIGameSettings.IsDisabledVehicleType(AIVehicle.VT_ROAD) && AIController.GetSetting("use_trucks") && AIGameSettings.GetValue("vehicle.max_roadveh") > 0;
-		case "busses": return !AIGameSettings.IsDisabledVehicleType(AIVehicle.VT_ROAD) && AIController.GetSetting("use_busses") && AIGameSettings.GetValue("vehicle.max_roadveh") > 0;
-		case "ships":  return !AIGameSettings.IsDisabledVehicleType(AIVehicle.VT_WATER) && AIController.GetSetting("use_ships") && AIGameSettings.GetValue("vehicle.max_ships") > 0;
+		case "planes": return true;
+		case "trains": return true;
+		case "trucks": return true;
+		case "busses": return true;
+		case "ships":  return false;
 	}
 }
 

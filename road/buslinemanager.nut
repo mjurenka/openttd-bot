@@ -1,18 +1,18 @@
 /*
- * This file is part of AdmiralAI.
+ * This file is part of EvoAI.
  *
- * AdmiralAI is free software: you can redistribute it and/or modify
+ * EvoAI is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 2 of the License, or
  * (at your option) any later version.
  *
- * AdmiralAI is distributed in the hope that it will be useful,
+ * EvoAI is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with AdmiralAI.  If not, see <http://www.gnu.org/licenses/>.
+ * along with EvoAI.  If not, see <http://www.gnu.org/licenses/>.
  *
  * Copyright 2008-2010 Thijs Marinussen
  */
@@ -39,10 +39,10 @@ class BusLineManager
 	constructor()
 	{
 		this._routes = [];
-		this._max_distance_existing_route = 100;
+		this._max_distance_existing_route = Parameters.BLM_DIST_EX_ROUTE_MAX;
 		this._skip_from = 0;
 		this._skip_to = 0;
-		this._max_distance_new_line = 60;
+		this._max_distance_new_line = Parameters.BLM_DIST_NEW_ROUTE_MAX;
 		this._last_search_finished = 0;
 	}
 
@@ -277,17 +277,17 @@ function BusLineManager::BuildNewLine()
 
 	foreach (town_from, manager in ::main_instance._town_managers) {
 		if (!manager.CanGetStation()) continue;
-		if (AITown.GetPopulation(town_from) < 150) continue;
+		if (AITown.GetPopulation(town_from) < Parameters.BLM_TOWN_POP_MIN) continue;
 		local townlist = AITownList();
 		townlist.Valuate(Utils_Valuator.ItemValuator);
 		townlist.KeepAboveValue(town_from);
 		townlist.Valuate(AITown.GetDistanceManhattanToTile, AITown.GetLocation(town_from));
-		townlist.KeepBetweenValue(50, this._max_distance_new_line);
+		townlist.KeepBetweenValue(Parameters.BLM_DIST_NEW_ROUTE_MIN, this._max_distance_new_line);
 		townlist.Sort(AIList.SORT_BY_VALUE, AIList.SORT_DESCENDING);
 		foreach (town_to, dummy in townlist) {
 			local manager2 = ::main_instance._town_managers[town_to];
 			if (!manager2.CanGetStation()) continue;
-			if (AITown.GetPopulation(town_to) < 150) continue;
+			if (AITown.GetPopulation(town_to) < Parameters.BLM_TOWN_POP_MIN) continue;
 			local list_from = AITileList();
 			Utils_Tile.AddSquare(list_from, AITown.GetLocation(town_from), 0);
 			local list_to = AITileList();
@@ -372,7 +372,7 @@ function BusLineManager::_NewLineExistingRoadGenerator(num_routes_to_check)
 		townlist.Valuate(Utils_Valuator.ItemValuator);
 		townlist.KeepAboveValue(town);
 		townlist.Valuate(AITown.GetDistanceManhattanToTile, AITown.GetLocation(town));
-		townlist.KeepBetweenValue(50, this._max_distance_existing_route);
+		townlist.KeepBetweenValue(Parameters.BLM_DIST_NEW_ROUTE_MIN, this._max_distance_existing_route);
 		townlist.Sort(AIList.SORT_BY_VALUE, AIList.SORT_DESCENDING);
 		foreach (town_to, dummy in townlist) {
 			if (town_to_skipped < this._skip_to && do_skip) {

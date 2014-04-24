@@ -1,18 +1,18 @@
 /*
- * This file is part of AdmiralAI.
+ * This file is part of EvoAI.
  *
- * AdmiralAI is free software: you can redistribute it and/or modify
+ * EvoAI is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 2 of the License, or
  * (at your option) any later version.
  *
- * AdmiralAI is distributed in the hope that it will be useful,
+ * EvoAI is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with AdmiralAI.  If not, see <http://www.gnu.org/licenses/>.
+ * along with EvoAI.  If not, see <http://www.gnu.org/licenses/>.
  *
  * Copyright 2008-2010 Thijs Marinussen
  */
@@ -186,9 +186,9 @@ function TruckLine::CheckVehicles()
 	local list = AIList();
 	list.AddList(this._vehicle_list);
 	list.Valuate(AIVehicle.GetAge);
-	list.KeepAboveValue(720);
+	list.KeepAboveValue(Parameters.TKL_VEHICLE_AGE_MIN);
 	list.Valuate(AIVehicle.GetProfitLastYear);
-	list.KeepBelowValue(400);
+	list.KeepBelowValue(Parameters.TKL_VEHIClE_PROFIT_MAX);
 
 	foreach (v, profit in list) {
 		this._vehicle_list.RemoveItem(v);
@@ -233,7 +233,7 @@ function TruckLine::CheckVehicles()
 		list = AIList();
 		list.AddList(this._vehicle_list);
 		list.Valuate(AIVehicle.GetAge);
-		list.KeepBelowValue(250);
+		list.KeepBelowValue(Parameters.TKL_ENGINE_AGE_MAX);
 		local num_young_vehicles = list.Count();
 		local cargo_per_truck = this._vehicle_list.Count() > 0 ? AIVehicle.GetCapacity(this._vehicle_list.Begin(), this._cargo) : AIEngine.GetCapacity(this._engine_id);
 		if (cargo_per_truck == 0) throw("Cargo_per_truck = 0. Engine: " + AIEngine.GetName(this._engine_id) + " ("+this._engine_id+"), veh engine = " +AIEngine.GetName(AIVehicle.GetEngineType(this._vehicle_list.Begin())) + " ("+this._vehicle_list.Begin()+")");
@@ -241,10 +241,10 @@ function TruckLine::CheckVehicles()
 			num_new = (cargo_waiting / cargo_per_truck + 1) / 2- max(0, num_young_vehicles);
 			num_new = min(num_new, 8); // Don't build more than 8 new vehicles a time.
 		}
-		local target_rating = 64;
-		if (AITown.HasStatue(AIStation.GetNearestTown(this._station_from.GetStationID()))) target_rating += 10;
+		local target_rating = Parameters.TKL_TARGET_RATING;
+		if (AITown.HasStatue(AIStation.GetNearestTown(this._station_from.GetStationID()))) target_rating += Parameters.TKL_RATING_TOWN_STAT;
 		local veh_speed = AIEngine.GetMaxSpeed(this._engine_id);
-		if (veh_speed > 85) target_rating += min(17, (veh_speed - 85) / 4);
+		if (veh_speed > Parameters.TKL_RATING_VEH_SPEED_MAX) target_rating += min(Parameters.TKL_RATING_VEH_SPEED_MIN, (veh_speed - Parameters.TKL_RATING_VEH_SPEED_MAX) / 4);
 		if (AIStation.GetCargoRating(this._station_from.GetStationID(), this._cargo) < target_rating && num_young_vehicles == 0 && num_new == 0) num_new = 1;
 		if (this._vehicle_list.Count() == 0) num_new = max(num_new, 2);
 
@@ -253,7 +253,7 @@ function TruckLine::CheckVehicles()
 		list.Valuate(AIVehicle.GetState);
 		list.KeepValue(AIVehicle.VS_RUNNING);
 		list.Valuate(AIVehicle.GetCurrentSpeed);
-		list.KeepBelowValue(10);
+		list.KeepBelowValue(Parameters.TKL_VEHICLE_SPEED_CURRENT_MAX);
 		if (num_new > 0 && list.Count() <= this._vehicle_list.Count() / 3) return !this.BuildVehicles(num_new);
 	}
 	/* We didn't build any new vehicles, so we don't need more money. */

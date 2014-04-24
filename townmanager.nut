@@ -1,18 +1,18 @@
 /*
- * This file is part of AdmiralAI.
+ * This file is part of EvoAI.
  *
- * AdmiralAI is free software: you can redistribute it and/or modify
+ * EvoAI is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 2 of the License, or
  * (at your option) any later version.
  *
- * AdmiralAI is distributed in the hope that it will be useful,
+ * EvoAI is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with AdmiralAI.  If not, see <http://www.gnu.org/licenses/>.
+ * along with EvoAI.  If not, see <http://www.gnu.org/licenses/>.
  *
  * Copyright 2008-2010 Thijs Marinussen
  */
@@ -351,7 +351,7 @@ function TownManager::GetDepot(station_manager)
 	if (!this._depot_tiles.rawin(AIRoad.GetCurrentRoadType())) {
 		local stationtiles = AITileList_StationType(station_manager.GetStationID(), AIStation.STATION_BUS_STOP);
 		stationtiles.Valuate(AIRoad.GetRoadStationFrontTile);
-		this._depot_tiles.rawset(AIRoad.GetCurrentRoadType(), AdmiralAI.BuildDepot(stationtiles.GetValue(stationtiles.Begin())));
+		this._depot_tiles.rawset(AIRoad.GetCurrentRoadType(), EvoAI.BuildDepot(stationtiles.GetValue(stationtiles.Begin())));
 	}
 	return this._depot_tiles.rawget(AIRoad.GetCurrentRoadType());
 }

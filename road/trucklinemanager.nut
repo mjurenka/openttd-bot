@@ -1,18 +1,18 @@
 /*
- * This file is part of AdmiralAI.
+ * This file is part of EvoAI.
  *
- * AdmiralAI is free software: you can redistribute it and/or modify
+ * EvoAI is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 2 of the License, or
  * (at your option) any later version.
  *
- * AdmiralAI is distributed in the hope that it will be useful,
+ * EvoAI is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with AdmiralAI.  If not, see <http://www.gnu.org/licenses/>.
+ * along with EvoAI.  If not, see <http://www.gnu.org/licenses/>.
  *
  * Copyright 2008-2010 Thijs Marinussen
  */
@@ -47,9 +47,9 @@ class TruckLineManager
 		this._ind_to_pickup_stations = {};
 		this._ind_to_drop_station = {};
 		this._routes = [];
-		this._min_distance = 35;
-		this._max_distance_existing_route = 75;
-		this._max_distance_new_route = 75;
+		this._min_distance = Parameters.TKM_DIST_MIN;
+		this._max_distance_existing_route = Parameters.TKM_DIST_EX_ROUTE_MAX;
+		this._max_distance_new_route = Parameters.TKM_DIST_NEW_ROUTE_MAX;
 		this._skip_cargo = 0;
 		this._skip_ind_from = 0;
 		this._skip_ind_to = 0;
@@ -224,7 +224,7 @@ function TruckLineManager::Load(data)
 				foreach (ind, dummy in this._unbuild_routes[route_array[5]]) {
 					//AILog.Info(ind + " " + AIIndustry.GetName(ind));
 					if (ind == route_array[0]) {
-						AdmiralAI.TransportCargo(route_array[5], ind);
+						EvoAI.TransportCargo(route_array[5], ind);
 						break;
 					}
 				}
@@ -338,9 +338,9 @@ function TruckLineManager::BuildNewLine()
 			local last_transportation = AIIndustry.GetLastMonthTransported(ind_from, cargo);
 			if (last_production == 0) continue;
 			/* Don't try to transport goods from industries that are serviced very well. */
-			if (AdmiralAI.GetMaxCargoPercentTransported(AITile.GetClosestTown(AIIndustry.GetLocation(ind_from))) < 100 * last_transportation / last_production) continue;
+			if (EvoAI.GetMaxCargoPercentTransported(AITile.GetClosestTown(AIIndustry.GetLocation(ind_from))) < 100 * last_transportation / last_production) continue;
 			/* Serviced industries with very low production are not interesting. */
-			if (last_production < 100 && last_transportation > 0) continue;
+			if (last_production < Parameters.TKM_LINE_LAST_PROD_MAX && last_transportation > Parameters.TKM_LINE_LAST_TRANS_MIN) continue;
 			local ind_acc_list = AIIndustryList_CargoAccepting(cargo);
 			ind_acc_list.Valuate(AIIndustry.GetDistanceManhattanToTile, AIIndustry.GetLocation(ind_from));
 			ind_acc_list.KeepBetweenValue(this._min_distance, this._max_distance_new_route);
@@ -397,7 +397,7 @@ function TruckLineManager::BuildNewLine()
 				AILog.Info("Route ok");
 				local line = TruckLine(ind_from, station_from, ind_to, station_to, depot, cargo, false);
 				this._routes.push(line);
-				AdmiralAI.TransportCargo(cargo, ind_from);
+				EvoAI.TransportCargo(cargo, ind_from);
 				this._UsePickupStation(ind_from, station_from);
 				AIRoad.SetCurrentRoadType(last_road_type);
 				return true;
@@ -569,7 +569,7 @@ function TruckLineManager::_BuildDepot(station_manager)
 	local stationtiles = AITileList_StationType(station_manager.GetStationID(), AIStation.STATION_TRUCK_STOP);
 	stationtiles.Valuate(AIRoad.GetRoadStationFrontTile);
 	/// @todo What if BuildDepot fails?
-	return AdmiralAI.BuildDepot(stationtiles.GetValue(stationtiles.Begin()));
+	return EvoAI.BuildDepot(stationtiles.GetValue(stationtiles.Begin()));
 }
 
 function TruckLineManager::_NewLineExistingRoadGenerator(num_routes_to_check)
@@ -606,9 +606,9 @@ function TruckLineManager::_NewLineExistingRoadGenerator(num_routes_to_check)
 			local last_transportation = AIIndustry.GetLastMonthTransported(ind_from, cargo);
 			if (last_production == 0) continue;
 			/* Don't try to transport goods from industries that are serviced very well. */
-			if (AdmiralAI.GetMaxCargoPercentTransported(AITile.GetClosestTown(AIIndustry.GetLocation(ind_from))) < 100 * last_transportation / last_production) continue;
+			if (EvoAI.GetMaxCargoPercentTransported(AITile.GetClosestTown(AIIndustry.GetLocation(ind_from))) < 100 * last_transportation / last_production) continue;
 			/* Serviced industries with very low production are not interesting. */
-			if (last_production < 100 && last_transportation > 0) continue;
+			if (last_production < Parameters.TKM_LINE_LAST_PROD_MAX && last_transportation > Parameters.TKM_LINE_LAST_TRANS_MIN) continue;
 			local free_production = last_production - last_transportation;
 			val_list.AddItem(ind_from, free_production + AIBase.RandRange(free_production));
 		}
@@ -651,7 +651,7 @@ function TruckLineManager::_NewLineExistingRoadGenerator(num_routes_to_check)
 					AILog.Info("Route ok");
 					local line = TruckLine(ind_from, station_from, ind_to, station_to, depot, cargo, false);
 					this._routes.push(line);
-					AdmiralAI.TransportCargo(cargo, ind_from);
+					EvoAI.TransportCargo(cargo, ind_from);
 					this._UsePickupStation(ind_from, station_from);
 					this._skip_ind_to--;
 					return true;
@@ -665,12 +665,12 @@ function TruckLineManager::_NewLineExistingRoadGenerator(num_routes_to_check)
 			switch (AICargo.GetTownEffect(cargo)) {
 				case AICargo.TE_GOODS:
 					transport_to_town = true;
-					min_town_pop = 1000;
+					min_town_pop = Parameters.TKM_GOOD_POP_MIN;
 					break;
 
 				case AICargo.TE_FOOD:
 					transport_to_town = true;
-					min_town_pop = 200;
+					min_town_pop = Parameters.TKM_FOOD_POP_MIN;
 					break;
 			}
 
@@ -679,7 +679,7 @@ function TruckLineManager::_NewLineExistingRoadGenerator(num_routes_to_check)
 				town_list.Valuate(AITown.GetPopulation);
 				town_list.KeepAboveValue(min_town_pop);
 				town_list.Valuate(AITown.GetDistanceManhattanToTile, AIIndustry.GetLocation(ind_from));
-				town_list.KeepBetweenValue(50, 400);
+				town_list.KeepBetweenValue(Parameters.TKL_DIST_TRANS_MIN, Parameters.TKL_DIST_TRANS_MAX);
 				town_list.Sort(AIList.SORT_BY_VALUE, AIList.SORT_DESCENDING);
 				foreach (town, distance in town_list) {
 					local route = RouteFinder.FindRouteBetweenRects(AIIndustry.GetLocation(ind_from), AITown.GetLocation(town), 8);
@@ -699,7 +699,7 @@ function TruckLineManager::_NewLineExistingRoadGenerator(num_routes_to_check)
 						AILog.Info("Route ok");
 						local line = TruckLine(ind_from, station_from, null, station_to, depot, cargo, false);
 						this._routes.push(line);
-						AdmiralAI.TransportCargo(cargo, ind_from);
+						EvoAI.TransportCargo(cargo, ind_from);
 						this._UsePickupStation(ind_from, station_from);
 						return true;
 					}

@@ -1,18 +1,18 @@
 /*
- * This file is part of AdmiralAI.
+ * This file is part of EvoAI.
  *
- * AdmiralAI is free software: you can redistribute it and/or modify
+ * EvoAI is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 2 of the License, or
  * (at your option) any later version.
  *
- * AdmiralAI is distributed in the hope that it will be useful,
+ * EvoAI is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with AdmiralAI.  If not, see <http://www.gnu.org/licenses/>.
+ * along with EvoAI.  If not, see <http://www.gnu.org/licenses/>.
  *
  * Copyright 2008-2010 Thijs Marinussen
  */
@@ -420,9 +420,9 @@ function TrainLine::CheckVehicles()
 	local list = AIList();
 	list.AddList(this._vehicle_list);
 	list.Valuate(AIVehicle.GetAge);
-	list.KeepAboveValue(720);
+	list.KeepAboveValue(Parameters.TL_VEHICLE_AGE_MIN);
 	list.Valuate(AIVehicle.GetProfitLastYear);
-	list.KeepBelowValue(1000);
+	list.KeepBelowValue(Parameters.TL_VEHICLE_PROFIT_MAX);
 
 	if (list.Count() > 0 ) {
 		foreach (v, _ in list) this.SellVehicle(v);
@@ -442,8 +442,8 @@ function TrainLine::CheckVehicles()
 	}
 	list.KeepValue(AIStation.GetLocation(this._station_from.GetStationID()));
 	list.Valuate(Utils_Tile.VehicleManhattanDistanceToTile, AIStation.GetLocation(this._station_from.GetStationID()));
-	list.KeepBelowValue(15);
-	if (list.Count() >= 4) {
+	list.KeepBelowValue(Parameters.TL_JAM_RADIUS);
+	if (list.Count() >= Parameters.TL_JAM_COUNT_ALERT) {
 		AILog.Warning("Detected jam near " + AIStation.GetName(this._station_from.GetStationID()));
 		list.Valuate(AIVehicle.GetCargoLoad, this._cargo);
 		list.Sort(AIList.SORT_BY_VALUE, AIList.SORT_ASCENDING);
@@ -461,13 +461,13 @@ function TrainLine::CheckVehicles()
 		list = AIList();
 		list.AddList(this._vehicle_list);
 		list.Valuate(AIVehicle.GetAge);
-		list.KeepBelowValue(350);
+		list.KeepBelowValue(Parameters.TL_ENGINE_AGE_MAX);
 		if (list.Count() > 0) return false;
 
-		local target_rating = 50;
+		local target_rating = Parameters.TL_ENGINE_TARGET_RATING;
 		if (AITown.HasStatue(AIStation.GetNearestTown(this._station_from.GetStationID()))) target_rating += 10;
 		local veh_speed = AIEngine.GetMaxSpeed(this._engine_id);
-		if (veh_speed > 85) target_rating += min(17, (veh_speed - 85) / 4);
+		if (veh_speed > Parameters.TL_ENGINE_VEH_SPEED_MAX) target_rating += min(Parameters.TL_ENGINE_VEH_SPEED_MIN, (veh_speed - Parameters.TL_ENGINE_VEH_SPEED_MAX) / 4);
 
 		local cargo_per_train = this._vehicle_list.Count() > 0 ? AIVehicle.GetCapacity(this._vehicle_list.Begin(), this._cargo) : -1;
 		if (AIStation.GetCargoRating(this._station_from.GetStationID(), this._cargo) < target_rating || cargo_per_train == -1 || cargo_waiting > 1.5 * cargo_per_train) {

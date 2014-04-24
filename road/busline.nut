@@ -1,18 +1,18 @@
 /*
- * This file is part of AdmiralAI.
+ * This file is part of EvoAI.
  *
- * AdmiralAI is free software: you can redistribute it and/or modify
+ * EvoAI is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 2 of the License, or
  * (at your option) any later version.
  *
- * AdmiralAI is distributed in the hope that it will be useful,
+ * EvoAI is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with AdmiralAI.  If not, see <http://www.gnu.org/licenses/>.
+ * along with EvoAI.  If not, see <http://www.gnu.org/licenses/>.
  *
  * Copyright 2008-2010 Thijs Marinussen
  */
@@ -150,9 +150,9 @@ function BusLine::CheckVehicles()
 	local list = AIList();
 	list.AddList(this._vehicle_list);
 	list.Valuate(AIVehicle.GetAge);
-	list.KeepAboveValue(720);
+	list.KeepAboveValue(Parameters.BL_VEHICLE_AGE_MAX);
 	list.Valuate(AIVehicle.GetProfitLastYear);
-	list.KeepBelowValue(400);
+	list.KeepBelowValue(Parameters.BL_VEHICLE_AGE_MIN);
 
 	foreach (v, profit in list) {
 		this._vehicle_list.RemoveItem(v);
@@ -209,7 +209,7 @@ function BusLine::CheckVehicles()
 		list = AIList();
 		list.AddList(this._vehicle_list);
 		list.Valuate(AIVehicle.GetAge);
-		list.KeepBelowValue(100);
+		list.KeepBelowValue(Parameters.BL_BUILD_ENGINE_AGE_MAX);
 		local num_young_vehicles = list.Count();
 		if (max(cargo_waiting_a, cargo_waiting_b) > 100) {
 			num_new = max(cargo_waiting_a, cargo_waiting_b) / 60 - max(0, num_young_vehicles);
@@ -217,12 +217,12 @@ function BusLine::CheckVehicles()
 		}
 		local rating = min(AIStation.GetCargoRating(this._station_from.GetStationID(), this._cargo),
 		                   AIStation.GetCargoRating(this._station_to.GetStationID(), this._cargo));
-		local target_rating = 60;
+		local target_rating = Parameters.BL_TARGET_RATING;
 		if (AITown.HasStatue(AIStation.GetNearestTown(this._station_from.GetStationID()))) target_rating += 10;
 		local veh_speed = AIEngine.GetMaxSpeed(this._engine_id);
-		if (veh_speed > 85) target_rating += min(17, (veh_speed - 85) / 4);
+		if (veh_speed > Parameters.BL_VEHICLE_SPEED_MAX) target_rating += min(Parameters.BL_VEHICLE_SPEED_MIN, (veh_speed - Parameters.BL_VEHICLE_SPEED_MAX) / 4);
 		if (rating < target_rating && num_young_vehicles == 0 && num_new == 0) num_new = 1;
-		if (rating < target_rating - 20 && num_young_vehicles + num_new <= 1) num_new++;
+		if (rating < target_rating - Parameters.BL_RATING_DECREASE && num_young_vehicles + num_new <= 1) num_new++;
 		if (num_new > 0) return !this.BuildVehicles(num_new);
 	}
 	return false;
