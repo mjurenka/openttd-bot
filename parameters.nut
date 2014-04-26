@@ -1,6 +1,5 @@
 class Parameters {
 	constructor() {}
-
 	A_MIN_PASS_SMALL = 40;
 	A_MIN_PASS_LARGE = 80;
 	A_MIN_PASS_METROPOLITAN = 80;
