@@ -8,12 +8,13 @@ class Fitness(object):
 		super(Fitness, self).__init__()
 
 	def evaluate(self, chromo):
-		fitness = subprocess.call(['java', '-jar', 'scbot.jar', chromo.toString()])
-		print("Fitness: " + str(fitness))
-		return fitness
+		temp = sum(chromo.chromo)
+		# print(chromo.toString())
+		# print(str(temp))
+		return temp
 
 	def evaluateSlow(self, chromo):
-		fitness = subprocess.call(['java', '-jar', 'scbot-slow.jar', chromo.toString()])
-		print("Fitness: " + str(fitness))
-		return fitness
+		temp = sum(chromo.chromo)
+		# print(chromo.toString())
+		return temp
 

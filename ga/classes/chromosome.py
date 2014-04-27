@@ -52,3 +52,6 @@ class Chromosome(object):
 
 	def getFitness(self):
 		return self.fitness
+
+	def destroy(self):
+		self.chromo = []
